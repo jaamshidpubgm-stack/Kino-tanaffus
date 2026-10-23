@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kino Tanaffus | Kino va Seriallar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #0f0f0f; color: #ffffff; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(15, 15, 15, 0.95); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; flex-wrap: wrap; gap: 10px; }
+        .logo { font-size: 26px; font-weight: 900; color: #e50914; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+        .logo span { color: #fff; }
+        .search-box { background: #222; border: 1px solid #444; color: #fff; padding: 10px 16px; border-radius: 25px; width: 260px; outline: none; font-size: 14px; }
+        .search-box:focus { border-color: #e50914; }
+        .hero { background: linear-gradient(to top, #0f0f0f 10%, rgba(0,0,0,0.4) 100%), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1200&q=80') center/cover; height: 55vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 5%; }
+        .hero h1 { font-size: 36px; margin-bottom: 10px; }
+        .hero p { color: #ccc; max-width: 500px; margin-bottom: 20px; font-size: 15px; line-height: 1.5; }
+        .btn { background: #e50914; color: #fff; padding: 12px 26px; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; width: fit-content; }
+        .categories { display: flex; gap: 10px; padding: 25px 5% 10px; overflow-x: auto; }
+        .cat-btn { background: #222; color: #fff; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 14px; }
+        .cat-btn.active { background: #e50914; font-weight: bold; }
+        .section-title { padding: 15px 5%; font-size: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; padding: 10px 5% 50px; }
+        .card { background: #1a1a1a; border-radius: 10px; overflow: hidden; cursor: pointer; transition: transform 0.2s; position: relative; }
+        .card:hover { transform: scale(1.04); }
+        .card img { width: 100%; height: 225px; object-fit: cover; display: block; }
+        .badge { position: absolute; top: 8px; right: 8px; background: #e50914; padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+        .card-info { padding: 10px; }
+        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-meta { font-size: 12px; color: #888; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #181818; max-width: 750px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #333; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #000; }
+        .video-box video { width: 100%; height: 100%; }
+        .modal-body { padding: 20px; }
+        .close-btn { float: right; background: #333; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Kino <span>Tanaffus</span></div>
+        <input type="text" id="searchInput" class="search-box" placeholder="Kino yoki serial qidirish...">
+    </header>
+
+    <div class="hero">
+        <h1>Kino Tanaffus'ga xush kelibsiz!</h1>
+        <p>Eng sara tarjima kinolar, jahon premyeralari va qiziqarli seriallar — barchasi bitta joyda, yuqori sifatda.</p>
+        <button class="btn" onclick="openMovie(0)">▶ Hoziroq ko‘rish</button>
+    </div>
+
+    <div class="categories">
+        <button class="cat-btn active" onclick="filterCat('Barchasi', this)">Barchasi</button>
+        <button class="cat-btn" onclick="filterCat('Kino', this)">Kinolar</button>
+        <button class="cat-btn" onclick="filterCat('Serial', this)">Seriallar</button>
+        <button class="cat-btn" onclick="filterCat('Ffantastika', this)">Fantastika</button>
+    </div>
+
+    <h2 class="section-title">🔥 Trenddagi kinolar va seriallar</h2>
+    <div class="grid" id="movieGrid"></div>
+
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <div class="video-box">
+                <video id="videoPlayer" controls poster="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=800&q=80">
+                    <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="modal-body">
+                <button class="close-btn" onclick="closeModal()">✕ Yopish</button>
+                <h2 id="modalTitle" style="margin-bottom: 8px;"></h2>
+                <p id="modalMeta" style="color: #e50914; font-size: 13px; margin-bottom: 12px; font-weight: bold;"></p>
+                <p id="modalDesc" style="color: #ccc; font-size: 14px; line-height: 1.5;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const movies = [
+            { title: "Koinot Sarhadlari", type: "Kino", genre: "Ffantastika", year: "2025", rating: "8.9", img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80", desc: "Insoniyat yangi galaktikani kashf qilish uchun eng xavfli ekspeditsiyaga yo'l oladi." },
+            { title: "Tungi Shahar Sirlari", type: "Serial", genre: "Detektiv", year: "2026", rating: "9.1", img: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80", desc: "Katta shahardagi sirli hodisalarni fosh etuvchi detektivning sarguzashtlari (1-fasl)." },
+            { title: "So'nggi Qahramon", type: "Kino", genre: "Jangari", year: "2025", rating: "8.4", img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=500&q=80", desc: "Adolat uchun kurashga bel bog'lagan jangchining unutilmas hikoyasi." },
+            { title: "Vaqt Tuzog'i", type: "Serial", genre: "Ffantastika", year: "2026", rating: "8.7", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=500&q=80", desc: "Vaqt mashinasini yaratgan olimlar o'tmish va kelajak o'rtasida qolib ketishadi." },
+            { title: "Cho'qqidagi Hayot", type: "Kino", genre: "Drama", year: "2024", rating: "8.2", img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80", desc: "Tog' cho'qqisini zabt etishga chiqqan do'stlarning hayot-mamot kurashi." },
+            { title: "Kiber Dunyo", type: "Kino", genre: "Ffantastika", year: "2026", rating: "9.0", img: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500&q=80", desc: "Sun'iy intellekt boshqaruvidagi kelajak dunyosi haqida hayajonli film." }
+        ];
+
+        const grid = document.getElementById('movieGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        function renderMovies(list) {
+            grid.innerHTML = list.map((m, i) => `
+                <div class="card" onclick="openMovie(${movies.indexOf(m)})">
+                    <span class="badge">★ ${m.rating}</span>
+                    <img src="${m.img}" alt="${m.title}">
+                    <div class="card-info">
+                        <div class="card-title">${m.title}</div>
+                        <div class="card-meta">${m.year} • ${m.type}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCat(cat, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (cat === 'Barchasi') renderMovies(movies);
+            else renderMovies(movies.filter(m => m.type === cat || m.genre === cat));
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            renderMovies(movies.filter(m => m.title.toLowerCase().includes(val)));
+        });
+
+        function openMovie(index) {
+            const m = movies[index];
+            document.getElementById('modalTitle').innerText = m.title;
+            document.getElementById('modalMeta').innerText = `${m.year} | ${m.type} | ★ ${m.rating}`;
+            document.getElementById('modalDesc').innerText = m.desc;
+            document.getElementById('movieModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('movieModal').style.display = 'none';
+            document.getElementById('videoPlayer').pause();
+        }
+
+        renderMovies(movies);
+    </script>
+</body>
+</html>
